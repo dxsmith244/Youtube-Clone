@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Youtube, Search, Bell, Video, Menu } from 'lucide-react'
+import { ThemeToggle } from "./theme-toggle"
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -58,6 +59,7 @@ export default function Header() {
             <Bell className="h-5 w-5" />
             <span className="sr-only">Notifications</span>
           </Button>
+          <ThemeToggle />
           <Avatar>
             <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
             <AvatarFallback>U</AvatarFallback>

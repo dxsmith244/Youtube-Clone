@@ -1,15 +1,26 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import React from 'react';
 
-export default function NotFound() {
+function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
-      <h2 className="text-2xl font-bold mb-4">Video Not Found</h2>
-      <p className="text-muted-foreground mb-6">The video you're looking for doesn't exist or was removed.</p>
-      <Button asChild>
-        <Link href="/">Return Home</Link>
-      </Button>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <img
+        src="/assets/illustrations/error.svg"
+        alt="Error illustration"
+        className="w-48 h-48 mb-6"
+      />
+      <p className="text-muted-foreground mb-6">The video you&apos;re looking for doesn&apos;t exist or was removed.</p>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => {
+          window.history.back();
+        }}
+      >
+        Go Back
+      </button>
     </div>
-  )
+  );
 }
+
+export default NotFound;
 

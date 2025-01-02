@@ -1,14 +1,15 @@
 import { Suspense } from 'react'
 import VideoGrid from '../components/video-grid'
-import { searchVideos } from '../..//lib/youtube'
+import { searchVideos } from '@/lib/youtube'
 import { Card } from "@/components/ui/card"
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: { q: string }
-}) {
-  const query = searchParams.q || ''
+interface SearchPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams
+  const query = typeof params.q === 'string' ? params.q : ''
   let videos = []
 
   try {
@@ -53,7 +54,7 @@ function NoResultsMessage({ query }: { query: string }) {
   return (
     <div className="text-center py-10">
       <p className="text-xl text-muted-foreground">
-        No results found for "{query}". Please try a different search term.
+        No results found for &quot;{query}&quot;. Please try a different search term.
       </p>
     </div>
   )

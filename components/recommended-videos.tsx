@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { getRelatedVideos, formatViewCount, formatTimeAgo } from '@/lib/youtube'
+import Image from 'next/image'
+import { getRelatedVideos, formatTimeAgo } from '@/lib/youtube'
 
 interface Video {
   id: { videoId: string }
@@ -10,25 +11,44 @@ interface Video {
     title: string
     channelTitle: string
     publishedAt: string
-    thumbnails: { medium: { url: string } }
+    thumbnails: { medium: { url: string, width: number, height: number } }
   }
 }
 
 export default function RecommendedVideos({ currentVideoId }: { currentVideoId: string }) {
   const [videos, setVideos] = useState<Video[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchRelatedVideos() {
       try {
+        setIsLoading(true)
+        setError(null)
         const relatedVideos = await getRelatedVideos(currentVideoId)
         setVideos(relatedVideos)
       } catch (error) {
         console.error('Failed to fetch related videos:', error)
+        setError('Failed to load recommendations')
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchRelatedVideos()
   }, [currentVideoId])
+
+  if (isLoading) {
+    return <div>Loading recommendations...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>
+  }
+
+  if (!videos.length) {
+    return <div>No recommendations available</div>
+  }
 
   return (
     <div>
@@ -36,13 +56,15 @@ export default function RecommendedVideos({ currentVideoId }: { currentVideoId: 
       <div className="space-y-4">
         {videos.map((video) => (
           <Link 
-            key={video.id.videoId} 
-            href={`/watch/${video.id.videoId}`} 
+            key={video.id?.videoId || video.id} 
+            href={`/watch/${video.id?.videoId || video.id}`} 
             className="flex group"
           >
-            <img
+            <Image
               src={video.snippet.thumbnails.medium.url}
               alt={video.snippet.title}
+              width={video.snippet.thumbnails.medium.width}
+              height={video.snippet.thumbnails.medium.height}
               className="w-40 h-24 object-cover rounded-lg mr-2"
             />
             <div>

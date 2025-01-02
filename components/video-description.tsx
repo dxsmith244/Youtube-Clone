@@ -3,11 +3,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThumbsUp, ThumbsDown, Share2, Download } from 'lucide-react'
 import { formatViewCount, formatTimeAgo } from '@/lib/youtube'
 
+interface VideoDetails {
+  id: string
+  snippet: {
+    title: string
+    channelTitle: string
+    publishedAt: string
+    description: string
+  }
+  statistics: {
+    viewCount: string
+    likeCount: string
+  }
+}
+
 interface VideoDescriptionProps {
-  video: any // You might want to create a proper type for this
+  video: VideoDetails
 }
 
 export default function VideoDescription({ video }: VideoDescriptionProps) {
+  if (!video) {
+    return <div>Video details not available</div>
+  }
+
   return (
     <div className="mt-4">
       <h1 className="text-2xl font-bold">{video.snippet.title}</h1>

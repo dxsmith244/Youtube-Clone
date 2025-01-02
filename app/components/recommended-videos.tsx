@@ -1,32 +1,53 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { getRelatedVideos } from '@/lib/youtube'
-import type { YouTubeVideo } from '@/types/youtube'
-import { formatViewCount, formatTimeAgo } from '@/lib/youtube'
+import Image from 'next/image'
+import { getRecommendedVideos, formatTimeAgo } from '@/lib/youtube'
+
+interface Video {
+  id: string
+  snippet: {
+    title: string
+    channelTitle: string
+    publishedAt: string
+    thumbnails: { medium: { url: string, width: number, height: number } }
+  }
+}
 
 export default function RecommendedVideos({ currentVideoId }: { currentVideoId: string }) {
-  const [videos, setVideos] = useState<YouTubeVideo[]>([])
+  const [videos, setVideos] = useState<Video[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchRelatedVideos() {
+    async function fetchRecommendedVideos() {
       try {
-        const response = await getRelatedVideos(currentVideoId)
-        setVideos(response.items)
+        setIsLoading(true)
+        setError(null)
+        const recommendedVideos = await getRecommendedVideos()
+        setVideos(recommendedVideos.filter(video => video.id !== currentVideoId))
       } catch (error) {
-        console.error('Failed to fetch related videos:', error)
+        console.error('Failed to fetch recommended videos:', error)
+        setError('Failed to load recommendations')
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchRelatedVideos()
+    fetchRecommendedVideos()
   }, [currentVideoId])
 
   if (isLoading) {
     return <div>Loading recommendations...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>
+  }
+
+  if (!videos.length) {
+    return <div>No recommendations available</div>
   }
 
   return (
@@ -35,16 +56,16 @@ export default function RecommendedVideos({ currentVideoId }: { currentVideoId: 
       <div className="space-y-4">
         {videos.map((video) => (
           <Link 
-            key={video.id.videoId} 
-            href={`/watch/${video.id.videoId}`} 
+            key={video.id} 
+            href={`/watch/${video.id}`} 
             className="flex group"
           >
-            <img
+            <Image
               src={video.snippet.thumbnails.medium.url}
               alt={video.snippet.title}
-              className="w-40 h-24 object-cover rounded-lg mr-2"
               width={video.snippet.thumbnails.medium.width}
               height={video.snippet.thumbnails.medium.height}
+              className="w-40 h-24 object-cover rounded-lg mr-2"
             />
             <div>
               <h3 className="font-semibold line-clamp-2 group-hover:text-blue-500">
